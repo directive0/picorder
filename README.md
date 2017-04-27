@@ -3,12 +3,19 @@ Picorder is a set of python programs that provide functionality for the TR-108 T
 It uses a number of modules to operate, specifically:
 
 Pygame
+
 Senshat
+
 RPi.GPIO
+
 sys
+
 time
+
 math
+
 random 
+
 os
 
 The PC demo also requires 
