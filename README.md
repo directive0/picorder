@@ -9,7 +9,6 @@ Picorder.py uses a number of modules to operate, specifically:
 - sys
 - time
 - math
-- random 
 - os
 - psutil (PC Demo only)
 
