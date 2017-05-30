@@ -23,6 +23,9 @@ You can find all the necessary construction documents in the "construction" fold
 Adafruit parts Wishlist is here:
 http://www.adafruit.com/wishlists/435166
 
+The base I used for the tricorder:
+https://www.amazon.ca/gp/product/B001820194/ref=ox_sc_sfl_title_6?ie=UTF8&psc=1&smid=A3DWYIK6Y9EEQB
+
 ## Sources
 This project was made possible by information and inspiration provided by these sources:
 - https://hackaday.io/project/5437-star-trek-tos-picorder
