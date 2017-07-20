@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Picorder - Version 1!
+# Picorder - Version 0.10.0
 # Program collects sensor data and displays it in sliders and graphs.
 # Plays a video using OMX
 # Displays modes using three LEDs
@@ -13,8 +13,9 @@ import pygame
 import os
 import time
 from filehandling import *
-from gpiobasics import *
-from sensehatbasics import *
+#from gpiobasics import *
+#from sensehatbasics import *
+from getcpu import *
 
 # The following commands initiate a pygame environment.
 pygame.init()
@@ -41,7 +42,6 @@ slider = pygame.image.load('slider.png')
 sliderb = pygame.image.load('slider2.png')
 status = "startup"
 
-# The following is a simple object that I can use to maintain toggled states. There's probably a better way to do it, but this is what I did!
 class toggle(object):
     def __init__(self):
         self.setting = False
@@ -91,6 +91,37 @@ class Image(object):
         
     def draw(self, surface):
         surface.blit(self.Img, (self.x,self.y))
+
+# the following class is used to draw rectangles, not used in this program. Probably deletable.   
+class Box(object):
+    def __init__(self):
+        self.x=0
+        self.y=0
+        self.vx=1
+        self.vy=1
+        self.size=(50,50)
+        self.color=(0,0,255)
+        
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        
+        if self.x > 640:
+            self.vx = -1
+            
+        if self.x < 0:
+            self.vx = 1
+            
+    
+        if self.y > 480:
+            self.vy = -1
+        
+        if self.y < 0:
+            self.vy = 1
+    
+    def draw(self, surface):
+        rect = pygame.Rect((self.x,self.y), self.size)
+        pygame.draw.rect(surface, self.color, rect)
 
 # The following class is to keep track of whether a graph has been initiated or is to be reset. This allows me to refresh graphs if need be.        
 class initial(object):
@@ -184,49 +215,7 @@ class timer(object):
         self.timeLapse = time.time() - self.lastTime
         #print(self.timeLapse)
         return self.timeLapse
-
-# The following function defines button behaviours and allows the program to query the button events and act accordingly.
-def butswitch(status,graphinit,moire,rot,buttons):
-    
-    button_readings = buttons.read()
-    
-    if (button_readings['buta']==True) and (button_readings['butb']==False) and (button_readings['butc']==False):
-        if (status == "graphgo") or (status == "magnetgo"):
-            graphinit.reset()    
-            status = "slidergo"
-
-        
-    if (button_readings['buta']==False) and (button_readings['butb']==True) and (button_readings['butc']==False):
-        if (status == "slidergo"):
-            graphinit.reset()    
-            status = "graphgo"
-        elif(status == "graphgo"):
-            graphinit.reset()    
-            status = "magnetgo"
-        elif (status == "magnetgo"):
-            graphinit.reset()    
-            status = "graphgo"
-
-    if (button_readings['butc']==True):
-        if (status == "slidergo"):
-            rot.flip()
-        elif(status == "graphgo"):
-            moire.toggle()
-        elif (status == "magnetgo"):
-            moire.toggle()
-
-        
-
-      #os.system("omxplayer ekmd.mov")
-        
-    if (button_readings['buta']==False) and (button_readings['butb']==True) and (button_readings['butc']==True):
-        os.system("omxplayer ekmd.mov")
-    
-    if (button_readings['buta']==True) and (button_readings['butb']==False) and (button_readings['butc']==True):
-        moire.toggle()
-
-        
-    return status
+          
           
 # the following function maps a value from the target range onto the desination range
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -279,7 +268,7 @@ def startUp(surface, timeSinceStart):
      return "slidergo"
 
 # the following function draws the main sensor readout screen
-def sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tempGraph,pressGraph,graphtock):
+def sliderScreen(surface,tock,rot,graphinit,humidGraph,tempGraph,pressGraph,graphtock):
       # This function draws the main 3-slider interface, modelled after McCoy's tricorder in "Plato's Stepchildren". It displays temperature, humidity and pressure.
       if (tock.timelapsed() >= 0.4):      
 
@@ -287,7 +276,7 @@ def sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tem
           surface.fill(black)
           
           # Cycles the Moire
-          moire.animate()
+          #moire.animate()
           
           # Instantiates the components of the scene
           templabel = Label()
@@ -314,8 +303,8 @@ def sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tem
           humidlabel.update(humidData,19,254,215,titleFont,yellow)
       
           # slider data adjustment
-          tempslide = translate(senseData['temp'], -40, 120, 204, 15)
-          pressslide = translate(senseData['pressure'], 260, 1260, 204, 15)
+          tempslide = translate(senseData['temp'], 0, 100, 204, 15)
+          pressslide = translate(senseData['pressure'], 0, 100, 204, 15)
           humidslide = translate(senseData['humidity'], 0, 100, 204, 15)
 
           # Updates our UI objects with data parsed from sensor/weather
@@ -369,7 +358,7 @@ def sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tem
               pressbuffer.pop(0)
               presscords = pressGraph.graphprep(pressbuffer)
               
-              csvfile.logvalues(senseData)
+             # csvfile.logvalues(senseData)
               
               graphtock.logtime()
           
@@ -377,21 +366,21 @@ def sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tem
       
       status = "slidergo"
       
-      status = butswitch(status,graphinit,moire,rot,buttons)
+#      status = butswitch(status,graphinit,rot)
       
       #returns state to main loop
       return status
     
 # the following function plots the environment sensors to an onscreen graph
-def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,buttons,csvfile,rot):
+def graphScreen(surface,humidGraph,tempGraph,pressGraph,tock,graphinit,rot):
       status = "graphgo"   
-      drawinterval = 64
+      drawinterval = 1
       senseinterval = 10
       #337
       
       # Because the graph screen is slow to update it needs to pop a reading onto screen as soon as it is initiated I draw a value once and wait for the interval to lapse for the next draw. Once the interval has lapsed pop another value on screen.
 
-      moire.animate()   
+      
       
       if (graphinit.get() == 0) or (tock.timelapsed() >= drawinterval):  
           #Sets a black screen ready for our UI elements      
@@ -402,7 +391,7 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
           graphback.update(backgraph, 0, 0)
           graphback.draw(surface) 
       
-          #instantiates 3 labels for our readout
+          #instantiates  labels for our readout
           templabel = Label()
           humidlabel = Label()
           presslabel = Label()
@@ -417,7 +406,6 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
 
           #gets our data
           senseData = sensorget()
-          csvfile.logvalues(senseData)
           
           #parses dictionary of data from sensor/weather.
       
@@ -439,14 +427,14 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
           #repeat for each sensor
 
           tempData = float(senseData['temp'])
-          tempgraph = translate(tempData, -40, 120, 204, 17)
+          tempgraph = translate(tempData, 0, 100, 204, 17)
           tempbuffer = tempGraph.grablist()
           tempbuffer.append(tempgraph)
           tempbuffer.pop(0)
           tempcords = tempGraph.graphprep(tempbuffer)
       
           pressData = float(senseData['pressure'])
-          pressgraph = translate(pressData, 260, 1260, 204, 17)
+          pressgraph = translate(pressData, 0, 100, 204, 17)
           pressbuffer = pressGraph.grablist()
           pressbuffer.append(pressgraph)
           pressbuffer.pop(0)
@@ -469,8 +457,8 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
           intervallabel.update(intervaltext,30,interx,intery,titleFont,white)
           intervallabelshadow.update(intervaltext, 30, interx + 2, intery + 2 ,titleFont,(100,100,100))
           
-          tempslide = translate(senseData['temp'], -40, 120, 194, 7)
-          pressslide = translate(senseData['pressure'], 260, 1260, 194, 7)
+          tempslide = translate(senseData['temp'], 0, 100, 194, 7)
+          pressslide = translate(senseData['pressure'], 0, 100, 194, 7)
           humidslide = translate(senseData['humidity'], 0, 100, 194, 7)
           
           slider1.update(sliderb, 283, tempslide)
@@ -480,7 +468,7 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
               
           #draw the lines
 
-          pygame.draw.lines(surface, red, False, tempcords, 3)
+          pygame.draw.lines(surface, red, False, tempcords, 3)	
           pygame.draw.lines(surface, green, False, humidcords, 3)
           pygame.draw.lines(surface, yellow, False, presscords, 3)
           
@@ -511,7 +499,7 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
       #status = "graphgo"    
       #returns state to main loop
       
-      status = butswitch(status,graphinit,moire,rot,buttons)
+      #status = butswitch(status,graphinit,rot)
       
       #button_readings = buttons.read()
 
@@ -521,13 +509,13 @@ def graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,tock,graphinit,but
       return status
 
 # The following function plots the magneto sensors to an onscreen graph
-def magnetScreen(surface,xGraph,yGraph,zGraph,moire,tock,graphinit,buttons,csvfile,rot):
+def magnetScreen(surface,xGraph,yGraph,zGraph,tock,graphinit,rot):
       interval = (1)   
        
       if (tock.timelapsed() >= interval):
 
 
-          moire.animate()    
+           
           #Sets a black screen ready for our UI elements      
           surface.fill(black)
 
@@ -640,7 +628,7 @@ def magnetScreen(surface,xGraph,yGraph,zGraph,moire,tock,graphinit,buttons,csvfi
       status = "magnetgo"    
       #returns state to main loop
 
-      status = butswitch(status,graphinit,moire,rot,buttons)
+#      status = butswitch	(status,graphinit,rot,buttons)
           
       #returns state to main loop
       return status
@@ -655,7 +643,7 @@ class Main(object):
     rot = toggle()
     
     # set up a file to store our sensor values to disk.
-    csvfile = write_values()
+#    csvfile = write_values()
     
     # set the screen resolution
     screenSize = (320,240)
@@ -664,16 +652,16 @@ class Main(object):
     modes = pygame.display.list_modes(16)
 
     # instantiate a pygame display with the name "surface"
-    surface = pygame.display.set_mode(screenSize, pygame.FULLSCREEN)
+    surface = pygame.display.set_mode(screenSize)
 
     # Create a time index to work from for the splash screen.
     timeSinceStart = time.time()
     
     # The Moire object controls the SenseHat's 8x8 LED Display.
-    moire = led_display()
+#    moire = led_display()
     
     # The Buttons object handles button events.
-    buttons = debounce()
+#    buttons = debounce()
     
     # I put the sensor data into objects so they can be passed into functions and retain information outside the scope.
     humidGraph = graphlist()
@@ -687,8 +675,7 @@ class Main(object):
     # tock.logtime() logs a starting point for my program. It could replace timeSinceStart and probably will one day.
     tock.logtime()
     graphtock.logtime()
-    
-    # graphinit is an object to make sure the graph screen never shows up blank or lags on being displayed when you switch to it.
+        # graphinit is an object to make sure the graph screen never shows up blank or lags on being displayed when you switch to it.
     graphinit = initial()
 
     # The following while loop catches ctrl-c exceptions. I use this structure so that status changes will loop back around and have a chance to activate different functions. It gets a little weird going forward, bear with me.
@@ -698,10 +685,7 @@ class Main(object):
             # Using this loop as an example. This loop runs the startup animation played when you first boot the program.
             while(status == "startup"):
                 # We activate each LED for a nice lamp test.
-                leda_on()
-                ledb_on()
-                ledc_on()
-                
+                                
                 # A simple pygame.time.wait allows the program to take a break through the cycle so it's not loading up the CPU with draws to screen. I just saved 75% of my CPU by switching to this.
                 pygame.time.wait(33)
                 # This next item grabs the pygame events, which includes keyboard events.
@@ -716,53 +700,74 @@ class Main(object):
                 else:
                     # otherwise it updates the status by calling on the startUp function, which is passed our pygame display object, and the time since we booted our program.
                     status = startUp(surface,timeSinceStart)
+
             
             # The rest of these loops all handle a different mode, switched by buttons within the functions. 
             while(status == "slidergo"):
-                leda_on()
-                ledb_off()
-                ledc_off()
                 pygame.event.get()
                 pygame.time.wait(50)
-                key = pygame.key.get_pressed()
-                if key[pygame.K_q]:
-                    cleangpio()
-                    clearled()
-                    status = "quit"
-                else:
-                    status = sliderScreen(surface,moire,tock,buttons,csvfile,rot,graphinit,humidGraph,tempGraph,pressGraph,graphtock)
-        
 
-            
-            while(status == "graphgo"):
-                leda_off()
-                ledb_on()
-                ledc_off()
-                pygame.event.get()
-                pygame.time.wait(50)
                 key = pygame.key.get_pressed()
-                if key[pygame.K_q]:
+                if key[pygame.K_j]:
+			status = "slidergo"
+
+		elif key[pygame.K_k]:
+			status = "graphgo"
+
+	        elif key[pygame.K_l]:
+			status = "magnetgo"
+
+                elif key[pygame.K_q]:
                     cleangpio()
                     clearled()
                     status = "quit"
                 else:
-                    status = graphScreen(surface,humidGraph,tempGraph,pressGraph,moire,graphtock,graphinit,buttons,csvfile,rot)
+                    status = sliderScreen(surface,tock,rot,graphinit,humidGraph,tempGraph,pressGraph,graphtock)
+
+            while(status == "graphgo"):
+                pygame.event.get()
+                pygame.time.wait(50)
+                key = pygame.key.get_pressed()
+		if key[pygame.K_j]:
+			graphinit.reset() 
+			status = "slidergo"
+
+	        elif key[pygame.K_k]:
+			status = "graphgo"
+
+	        elif key[pygame.K_l]:
+				graphinit.reset() 
+				status = "magnetgo"
+
+                elif key[pygame.K_q]:
+                    cleangpio()
+                    clearled()
+                    status = "quit"
+                else:
+                    status = graphScreen(surface,humidGraph,tempGraph,pressGraph,graphtock,graphinit,rot)
 
 
             while (status == "magnetgo"):
-                leda_off()
-                ledb_on()
-                ledc_off()
                 pygame.event.get()
                 pygame.time.wait(50)
                 key = pygame.key.get_pressed()
-                if key[pygame.K_q]:
+
+	        if key[pygame.K_j]:
+			status = "slidergo"
+
+	        elif key[pygame.K_k]:
+			status = "graphgo"
+
+	        elif key[pygame.K_l]:
+			status = "magnetgo"
+
+                elif key[pygame.K_q]:
                     cleangpio()
                     clearled()
                     status = "quit"
                 else:
                     #timeStart=time.time()
-                    status = magnetScreen(surface,xGraph,yGraph,zGraph,moire,tock,graphinit,buttons,csvfile,rot)
+                    status = magnetScreen(surface,xGraph,yGraph,zGraph,tock,graphinit,rot)
 
                 
         # If CTRL-C is received the program gracefully turns off the LEDs and resets the GPIO.

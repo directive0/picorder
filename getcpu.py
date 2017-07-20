@@ -10,9 +10,12 @@ import time
 
 
 def sensorget():
+    
+   statusram = psutil.virtual_memory()
+   
    sensordict = {'humidity': 0, 'temp':0, 'humidtemp':0, 'pressuretemp':0,'pressure':0,'compass':0} 
    sensordict['humidity'] = psutil.cpu_percent()
-   sensordict['temp'] = psutil.cpu_percent()
+   sensordict['temp'] = statusram[2]
    sensordict['humidtemp'] = psutil.cpu_percent()
    sensordict['pressuretemp'] = psutil.cpu_percent()
    sensordict['pressure'] = psutil.cpu_percent()
