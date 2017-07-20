@@ -1,4 +1,6 @@
-# The TR-108 Picorder
+![Alt text](https://raw.githubusercontent.com/directive0/picorder/master/Picorder%20Logo.png?raw=true "Logo")
+
+# The TR-108 Picorder 
 The following is a set of python programs that provide functionality for the TR-108 Tricorder I am building, as well as necessary files for anyone to build their own should they so desire
 
 ## Requirements:
