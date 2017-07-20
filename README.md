@@ -1,7 +1,10 @@
-![Alt text](https://raw.githubusercontent.com/directive0/picorder/master/Picorder%20Logo.png?raw=true "Logo")
+![Logo](https://raw.githubusercontent.com/directive0/picorder/master/Picorder%20Logo.png?raw=true "Logo")
 
 # The TR-108 Picorder 
-The following is a set of python programs that provide functionality for the TR-108 Tricorder I am building, as well as necessary files for anyone to build their own should they so desire
+This repo is a set of python components that together provide functionality for the TR-108 Tricorder I am building, as well as necessary files for anyone to build their own should they so desire. The TR-108 is a Raspberry Pi Zero based system that includes a sensor package, battery, display and supplemental components to provide a satisfying and accurate Tricorder experience. In the interest of inspiring others to build on what I have done I am providing all of the documentation I can.
+
+## Notes:
+Basic functionality is complete; the program logs values from the sense hat and displays them. Future releases will optimize this code, for now its a dogs breakfast. What do you expect, I'm a noob.
 
 ## Requirements:
 Picorder.py uses a number of modules to operate, specifically:
@@ -15,9 +18,6 @@ Picorder.py uses a number of modules to operate, specifically:
 - psutil (PC Demo only)
 
 Be sure you have these modules installed before attempting to run this program.
-
-## Notes:
-Basic functionality is complete; the program logs values from the sense hat and displays them. Future releases will optimize this code, for now its a dogs breakfast. What do you expect, I'm a noob.
 
 ## Construction:
 You can find all the necessary construction documents in the "construction" folder.
