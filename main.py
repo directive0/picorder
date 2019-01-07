@@ -283,7 +283,7 @@ def startUp(surface, timeSinceStart):
 	
 	#sets out UI objects with the appropriate data
 	insignia.update(blueInsignia, 115, 24) 
-	mainTitle.update("TR-108 Environmental Tricorder",25,22,181,titleFont,white)
+	mainTitle.update("TR-108 Environmental Tricorder v1.1",25,22,181,titleFont,white)
 	secTitle.update("STARFLEET R&D - Toronto - CLASS M ONLY",19,37,210,titleFont,blue)
 
 	#writes our objects to the buffer
