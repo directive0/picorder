@@ -35,12 +35,13 @@ black = (0,0,0)
 white = (255,255,255)
 
 # The following lists/objects are for UI elements.
-titleFont = "babs.otf"
-blueInsignia = pygame.image.load('insigniablue.png')
-backplane = pygame.image.load('background.png')
-backgraph = pygame.image.load('backgraph.png')
-slider = pygame.image.load('slider.png')
-sliderb = pygame.image.load('slider2.png')
+titleFont = "assets/babs.otf"
+titleFont = "assets/babs.otf"
+blueInsignia = pygame.image.load('assets/insigniablue.png')
+backplane = pygame.image.load('assets/background.png')
+backgraph = pygame.image.load('assets/backgraph.png')
+slider = pygame.image.load('assets/slider.png')
+sliderb = pygame.image.load('assets/slider2.png')
 status = "startup"
 
 set_logging = False
@@ -283,7 +284,7 @@ def startUp(surface, timeSinceStart):
 	
 	#sets out UI objects with the appropriate data
 	insignia.update(blueInsignia, 115, 24) 
-	mainTitle.update("TR-108 Environmental Tricorder v1.1",25,22,181,titleFont,white)
+	mainTitle.update("TR-108 Environmental Tricorder",25,22,181,titleFont,white)
 	secTitle.update("STARFLEET R&D - Toronto - CLASS M ONLY",19,37,210,titleFont,blue)
 
 	#writes our objects to the buffer
