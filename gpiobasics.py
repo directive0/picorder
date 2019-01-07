@@ -1,3 +1,4 @@
+#!/usr/bin/python
 
 # External module imports
 import RPi.GPIO as GPIO
