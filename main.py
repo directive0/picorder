@@ -14,6 +14,12 @@ import pygame
 import os
 import time
 from filehandling import *
+
+# If running on Pi use these imports:
+#from gpiobasics import *
+#from sensehatbasics import *
+
+# If testing on PC use these imports:
 from gpiodummy import *
 from getcpu import *
 #from screens import *
