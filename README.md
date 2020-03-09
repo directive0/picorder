@@ -1,5 +1,7 @@
 ![Logo](https://raw.githubusercontent.com/directive0/picorder/master/assets/Picorder%20Logo.png?raw=true "Logo")
 
+This repo is deprecated and is to be replaced by PicorderOS (https://github.com/directive0/picorderOS)
+
 # The TR-108 Picorder 
 This repo is a set of python components that together provide functionality for the TR-108 Tricorder I am building, as well as necessary files for anyone to build their own should they so desire. The TR-108 is a Raspberry Pi Zero based system that includes a sensor package, battery, display and supplemental components to provide a satisfying and accurate Tricorder experience. In the interest of inspiring others to build on what I have done I am providing all of the documentation I can.
 
